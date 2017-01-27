@@ -1,0 +1,329 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffcff1ff"
+    android:orientation="vertical"
+    tools:context="com.diplomskirad.celestin.diplomskiv2.Postavke">
+
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.85"
+        android:background="#ffcff1ff"
+        android:padding="5dp">
+
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:text="ACS 880"
+                android:id="@+id/acs_880_txt"
+                android:textSize="30sp"
+                android:layout_width="wrap_content"
+                android:paddingTop="7dp"
+                android:gravity="center"
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="center"
+                android:layout_height="0dp"
+                android:layout_weight="0.2"/>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:orientation="horizontal"
+                android:layout_weight="0.2"
+                android:layout_marginTop="10sp">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="IP"
+                    android:textSize="20sp"
+                    android:paddingBottom="8dp"
+                    android:layout_gravity="center"
+                    android:gravity="center"/>
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:id="@+id/edt_acs880_ip"
+                    android:inputType="phone"
+                    android:layout_marginLeft="10dp"
+                    android:text="192.168.0.100"
+                    />
+                <LinearLayout
+                    android:layout_width="10dp"
+                    android:layout_height="match_parent"></LinearLayout>
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="PORT"
+                    android:paddingBottom="8dp"
+                    android:textSize="20sp"
+                    android:layout_gravity="center"
+                    android:gravity="center"/>
+
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:inputType="number"
+                    android:textSize="20sp"
+                    android:id="@+id/edt_acs880_port"
+                    android:text="502"
+                    />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.2"
+                android:orientation="horizontal"
+                android:layout_marginTop="20sp">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DATA IN"
+                    android:textSize="20sp"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="30dp"
+                    android:layout_gravity="center"
+                    android:gravity="center"/>
+
+                <LinearLayout
+                    android:layout_width="80dp"
+                    android:layout_height="match_parent"></LinearLayout>
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="DATA OUT"
+                    android:paddingBottom="8dp"
+                    android:textSize="20sp"
+                    android:layout_gravity="center"
+                    android:gravity="center"/>
+
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.2"
+                android:orientation="horizontal"
+                android:layout_marginTop="20sp">
+
+
+                <LinearLayout
+                    android:layout_width="55dp"
+                    android:layout_height="match_parent"></LinearLayout>
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.2"
+                android:orientation="horizontal"
+                android:layout_marginTop="0sp">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tren. brzina "
+                    android:textSize="20sp"
+                    android:paddingBottom="8dp"
+                    android:layout_gravity="center"
+                    android:gravity="center"/>
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:inputType="number"
+                    android:id="@+id/edt_acs_speedcurr_read_adr"
+                    android:layout_marginLeft="10dp"
+                    android:text="1"
+                    />
+                <LinearLayout
+                    android:layout_width="45dp"
+                    android:layout_height="match_parent"></LinearLayout>
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.2"
+                android:orientation="horizontal"
+                android:layout_marginTop="20sp">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tren. snaga "
+                    android:textSize="20sp"
+                    android:paddingBottom="8dp"
+                    android:layout_gravity="center"
+                    android:gravity="center"/>
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:inputType="number"
+                    android:id="@+id/edt_acs_power_read_adr"
+                    android:layout_marginLeft="10dp"
+                    android:text="1"
+                    />
+                <LinearLayout
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"></LinearLayout>
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.2"
+                android:orientation="horizontal"
+                android:layout_marginTop="20sp">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tren. struja  "
+                    android:textSize="20sp"
+                    android:paddingBottom="8dp"
+                    android:layout_gravity="center"
+                    android:gravity="center"/>
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:inputType="number"
+                    android:id="@+id/edt_acs_current_read_adr"
+                    android:layout_marginLeft="10dp"
+                    android:text="1"
+                    />
+                <LinearLayout
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"></LinearLayout>
+
+
+
+            </LinearLayout>
+
+            <TextView
+                android:text="SENTRON PAC3200"
+                android:id="@+id/sentron_txt"
+                android:textSize="30sp"
+                android:layout_width="wrap_content"
+                android:paddingTop="7dp"
+                android:gravity="center"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="center"
+                android:layout_height="0dp"
+                android:layout_weight="0.2"/>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.2"
+                android:orientation="horizontal"
+                android:layout_marginTop="10sp">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="IP"
+                    android:textSize="20sp"
+                    android:paddingBottom="8dp"
+                    android:layout_gravity="center"
+                    android:gravity="center"/>
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="20sp"
+                    android:inputType="phone"
+                    android:id="@+id/edt_sentron_ip"
+                    android:layout_marginLeft="10dp"
+                    android:text="192.168.0.100"
+                    />
+                <LinearLayout
+                    android:layout_width="10dp"
+                    android:layout_height="match_parent"></LinearLayout>
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="PORT"
+                    android:paddingBottom="8dp"
+                    android:textSize="20sp"
+                    android:layout_gravity="center"
+                    android:gravity="center"/>
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:textSize="20sp"
+                    android:inputType="number"
+                    android:id="@+id/edt_sentron_port"
+                    android:text="502"
+                    />
+
+
+            </LinearLayout>
+
+
+
+
+        </LinearLayout>
+
+
+
+    </ScrollView>
+
+
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.15"
+        android:id="@+id/btn_save_settings"
+        android:text="Spremi"
+        android:background="@drawable/button_selector"
+        android:textColor="#ffcff1ff"
+        android:textSize="30sp"/>
+</LinearLayout>
