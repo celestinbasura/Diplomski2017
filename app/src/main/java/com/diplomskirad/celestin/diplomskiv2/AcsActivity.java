@@ -1,14 +1,12 @@
 package com.diplomskirad.celestin.diplomskiv2;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -37,9 +35,11 @@ import java.util.TimerTask;
 import static com.diplomskirad.celestin.diplomskiv2.Utils.acsTransparentToInt;
 import static com.diplomskirad.celestin.diplomskiv2.Utils.getBitState;
 import static com.diplomskirad.celestin.diplomskiv2.Utils.oneIntToTransparent;
-import static com.diplomskirad.celestin.diplomskiv2.Utils.twoIntsToACSTransparent;
 
 public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
+
+
+    public static Context contextOfApplication;
 
 
     Button reverse;
@@ -75,6 +75,8 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
     SharedPreferences sharedPreferences;
     TCPMasterConnection conn;
 
+    ABBVariableSpeedDrive acs880Drive;
+
     Timer tm;
     TimerTask readRegs;
     Handler handler = new Handler();
@@ -87,15 +89,9 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
     //communication module
 
     final int controlWordAdr = 0;
-    final int statusWordAdr = 50;
     final int speedRefInAdr = 51;
     final int speedRefOutAdr = 1;
-    final int dataInOffset = 52;
-    int powerInAdr;
-    int currentInAdr;
-    int speedEstInAdr;
     int readSpeedRef = 0;
-    float currentSpeed;
 
     //default control word value for stopping the motor(required for first startup)
     int starStopWriteValue = 1150;
@@ -107,6 +103,9 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
         setContentView(R.layout.activity_acs);
 
 
+        contextOfApplication = getApplicationContext();
+
+        acs880Drive = new ABBVariableSpeedDrive();
 //getting the sharedPrerefences for IP and PORT address retrieval
         sharedPreferences = getApplicationContext().getSharedPreferences(Constants.MY_PREFS, 0); // 0 - for private mode
 
@@ -131,10 +130,7 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
         startStop.setBackgroundResource(R.drawable.button_selector);
         reverse = (Button) findViewById(R.id.btn_acs_reverziranje);
 
-        powerInAdr = sharedPreferences.getInt(Postavke.ACS_POWER_READ, Constants.DEFUALT_ACS_POWER_READ_ADR) + dataInOffset;
-        currentInAdr = sharedPreferences.getInt(Postavke.ACS_CURRENT_READ, Constants.DEFUALT_ACS_CURRENT_READ_ADR) + dataInOffset;
 
-        speedEstInAdr = sharedPreferences.getInt(Postavke.ACS_SPEED_EST_READ, Constants.DEFUALT_ACS_SPEED_EST_READ_ADR);
         speedReference = (SeekBar) findViewById(R.id.seek_acs_speed_reference);
 
         speedReference.setOnSeekBarChangeListener(this);
@@ -168,7 +164,7 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                     public void onClick(DialogInterface dialogInterface, int i) {
 
                         currentSpeedReference.setText(temp / 200 + "%");
-                        if (currentSpeed < 0) {
+                        if (speedRefOutAdr < 0) {
                             writeToACS(acsTransparentToInt((temp * (-1))), speedRefOutAdr);
 
                         } else {
@@ -218,44 +214,36 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                 stopMotor.show();
             }
         });
-
-
         reverse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if (currentSpeed == 0) {
-                    Toast.makeText(getApplicationContext(), "Motor nije pokrenut", Toast.LENGTH_SHORT).show();
-                    return;
-                } else {
-                    final AlertDialog.Builder promjenaSmjera = new AlertDialog.Builder(AcsActivity.this);
-                    promjenaSmjera.setTitle("Reverziranje");
-                    promjenaSmjera.setMessage("Da li ste sigurni da zelite reverzirati smjer vrtnje?");
+            final AlertDialog.Builder promjenaSmjera = new AlertDialog.Builder(AcsActivity.this);
+            promjenaSmjera.setTitle("Reverziranje");
+            promjenaSmjera.setMessage("Da li ste sigurni da zelite reverzirati smjer vrtnje?");
 
-                    promjenaSmjera.setPositiveButton("Da", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
+            promjenaSmjera.setPositiveButton("Da", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
 
-                            readSpeedRef = oneIntToTransparent(regResponse.getRegisterValue(speedRefInAdr));
-                            writeToACS(acsTransparentToInt((readSpeedRef * (-1))), speedRefOutAdr);
-                            Log.d("cele", "Writing..." + speedRefOutAdr + "to register: " + speedRefOutAdr);
+                    readSpeedRef = oneIntToTransparent(regResponse.getRegisterValue(speedRefInAdr));
+                    writeToACS(acsTransparentToInt((readSpeedRef * (-1))), speedRefOutAdr);
+                    Log.d("cele", "Writing..." + speedRefOutAdr + "to register: " + speedRefOutAdr);
 
-                        }
-                    });
-
-                    promjenaSmjera.setNegativeButton("Odustani", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                        }
-                    });
-
-                    promjenaSmjera.show();
                 }
+            });
+
+            promjenaSmjera.setNegativeButton("Odustani", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                }
+            });
+
+            promjenaSmjera.show();
             }
         });
     }
-
 
     @Override
     protected void onResume() {
@@ -266,10 +254,7 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                 connectToDevice();
             }
         }).start();
-
-
     }
-
 
     @Override
     protected void onPause() {
@@ -277,7 +262,6 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
         closeConnection();
         super.onPause();
     }
-
 
     @Override
     protected void onStop() {
@@ -287,12 +271,10 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
 
     }
 
-
     void connectToDevice() {
 
         final String AcsIP = sharedPreferences.getString(Postavke.ACS_IP, Constants.DEFUALT_ACS_IP);
         final int AcsPort = sharedPreferences.getInt(Postavke.ACS_PORT, Constants.DEFUALT_ACS_PORT);
-
 
         try {
 
@@ -308,7 +290,6 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                 Log.d("cele", "Already connected");
             }
 
-
             if (conn.isConnected()) {
                 Log.d("cele", "Connected");
 
@@ -322,7 +303,6 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
 
                 tm.scheduleAtFixedRate(readRegs, (long) 500, (long) 200);
                 isConnectedToSlave = true;
-
             }
 
         } catch (UnknownHostException e) {
@@ -334,8 +314,6 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
             Log.d("cele", "failed to Connect");
             Log.d("cele", " " + e.getLocalizedMessage());
         }
-
-
     }
 
     void closeConnection() {
@@ -409,7 +387,6 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                 refreshGUI();
             }
         });
-
     }
 
 
@@ -435,9 +412,7 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                             Toast.makeText(getBaseContext(), "Not connected to server", Toast.LENGTH_SHORT).show();
                         }
                     });
-
                     return;
-
                 }
                 isWriting = true;
                 trans.setRequest(mulitpleRequest);
@@ -457,8 +432,6 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
 
         }
         ).start();
-
-
     }
 
 
@@ -466,6 +439,8 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
 
         if (regResponse != null) {
 
+
+            acs880Drive.updateDriveState(regResponse);
             //  Log.d("cele", "Values refreshed");
 
             if (isFirstRefresh) {
@@ -481,72 +456,39 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                 speedReference.setProgress(tempSpeedRef);
                 isFirstRefresh = false;
             }
-            //Log.d("cele", "Speed reference: " +  regResponse.getRegisterValue(speedRefInAdr));
 
-            currentActualCurrent.setText(String.format("%.2f A",
-                    twoIntsToACSTransparent(
-                            regResponse.getRegisterValue(currentInAdr),
-                            regResponse.getRegisterValue(currentInAdr + 1),
-                            100)));
+            currentSpeedReference.setText(speedReference.getProgress()/200 + "%");
 
-            //  currentSpeedReference.setText(
-            //          oneIntToTransparent(
-            //                  regResponse.getRegisterValue(speedRefInAdr)) + " ");
+            currentActualCurrent.setText(String.format("%.2f A",acs880Drive.getInstantaniousCurrent()));
 
-            currentSpeed = twoIntsToACSTransparent(
-                    regResponse.getRegisterValue(speedEstInAdr + dataInOffset),
-                    regResponse.getRegisterValue(speedEstInAdr + 1 + dataInOffset), 100);
+            currentActualSpeed.setText(String.format("%.2f 1/min",acs880Drive.getInstataniousSpeed()));
 
-            //Log.d("cele", "Speed register #1: " +  regResponse.getRegisterValue(speedEstInAdr + dataInOffset));
-            //Log.d("cele", "Speed register #2: " +  regResponse.getRegisterValue(speedEstInAdr + dataInOffset + 1));
+            currentActualPower.setText(String.format("%.2f kW",acs880Drive.getInstantaniousPower()));
 
-            currentActualSpeed.setText(String.format("%.2f 1/min",
-                    currentSpeed));
 
-            currentActualPower.setText(String.format("%.2f kW",
-                    twoIntsToACSTransparent(
-                            regResponse.getRegisterValue(powerInAdr),
-                            regResponse.getRegisterValue(powerInAdr + 1),
-                            100)));
+            isReadyToSwitchOn = acs880Drive.isReadyToPowerOn();
 
-            int statusWord = regResponse.getRegisterValue(statusWordAdr);
-            //Log.d("cele", " Status word je " + Integer.toBinaryString(statusWord));
+            isReadyToRun = acs880Drive.isReadyToRun();
 
-            isReadyToSwitchOn = getBitState(0, statusWord);
-            //Log.d("cele", " isReadyToSwitch on " + isReadyToSwitchOn);
+            isReadyRef = acs880Drive.isRunning();
 
-            isReadyToRun = getBitState(1, statusWord);
-             //Log.d("cele", " isReadyToRun " + isReadyToRun);
+            isFaulted = acs880Drive.isFaultActive();
 
-            isReadyRef = getBitState(2, statusWord);
-            // Log.d("cele", " isReadyRef " + isReadyRef);
+            isOffTwoInactive = acs880Drive.isOff2Active();
 
-            isFaulted = getBitState(3, statusWord);
-            // Log.d("cele", " isFaulted " + isFaulted);
+            isOffThreeInactive = acs880Drive.isOff3Active();
 
-            isOffTwoInactive = getBitState(4, statusWord);
-            //Log.d("cele", " isOff 2 inactive " + isOffTwoInactive);
+            isSwitchOnInhibited = acs880Drive.isSwitchOnInhibited();
 
-            isOffThreeInactive = getBitState(5, statusWord);
-            //Log.d("cele", " iisOff 3 inactive " + isOffThreeInactive);
+            isWarningActive = acs880Drive.isWarningActive();
 
-            isSwitchOnInhibited = getBitState(6, statusWord);
-            //Log.d("cele", " isSwitchOn Inhibited " + isSwitchOnInhibited);
+            isAtSetpoint = acs880Drive.isSetPointDeviationActive();
 
-            isWarningActive = getBitState(7, statusWord);
-             //Log.d("cele", " isWarning active " + isWarningActive);
+            isRemoteActive = acs880Drive.isInRemoteControl();
 
-            isAtSetpoint = getBitState(8, statusWord);
-           // Log.d("cele", " isAt setpoint " + isAtSetpoint);
+            isAboveLimit = acs880Drive.isSetpointLimitReachedActive();
 
-            isRemoteActive = getBitState(9, statusWord);
-            // Log.d("cele", " isRemote active" + isRemoteActive);
-
-            isAboveLimit = getBitState(10, statusWord);
-            //Log.d("cele", " isAbove limit " + isAboveLimit);
-
-            isExtRunEnabled = getBitState(12, statusWord);
-            //Log.d("cele", " Remote run " + isExtRunEnabled);
+            isExtRunEnabled = acs880Drive.isExternalControlSelected();
 
 
             if (isFaulted) {
@@ -565,7 +507,6 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                 btnWarning.setVisibility(View.INVISIBLE);
                 currentWarningCode.setText(" ");
             }
-
 
             if (isFaulted) {
 
@@ -588,17 +529,13 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
 
                 } else {
 
-
                     if ((!isReadyToSwitchOn || isSwitchOnInhibited) || (isReadyToRun && !isReadyRef)) {
-
 
                         startStop.setText("PRIPREMA");
                         // startStop.setBackgroundColor(Color.DKGRAY);
                         startStop.setBackgroundResource(R.drawable.button_selector);
                         startStop.setClickable(true);
                         starStopWriteValue = 1150;
-
-
                     }
 
                     if (isReadyToSwitchOn && !isReadyToRun && !isReadyRef) {
@@ -618,14 +555,9 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                             startStop.setClickable(true);
                             starStopWriteValue = 1150;
 
-
                         }
-
-
                     }
                 }
-
-
             }
 
         } else {
@@ -634,9 +566,7 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
             startStop.setBackgroundResource(R.drawable.button_selector);
             Log.d("cele", "reg emtpy");
         }
-
     }
-
 
 
     @Override
@@ -653,4 +583,9 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
     public void onStopTrackingTouch(SeekBar seekBar) {
 
     }
+
+    public static Context getContextOfApplication(){
+        return contextOfApplication;
+    }
+
 }

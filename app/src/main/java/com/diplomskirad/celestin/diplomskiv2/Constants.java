@@ -18,6 +18,9 @@ public class Constants {
     public static int DEFUALT_ACS_POWER_READ_ADR = 3;
     public static int DEFUALT_ACS_CURRENT_READ_ADR = 5;
 
+    public static int SPEED_SETPOINT_SCALING_FACTOR = 200;
+    public static int VSD_FEEDBACK_SCALING_FACTOR = 100;
+
 
 
 }
