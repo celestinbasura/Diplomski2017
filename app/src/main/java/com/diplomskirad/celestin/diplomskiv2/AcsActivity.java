@@ -236,7 +236,9 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
 
+                            readSpeedRef = oneIntToTransparent(regResponse.getRegisterValue(speedRefInAdr));
                             writeToACS(acsTransparentToInt((readSpeedRef * (-1))), speedRefOutAdr);
+                            Log.d("cele", "Writing..." + speedRefOutAdr + "to register: " + speedRefOutAdr);
 
                         }
                     });
@@ -420,11 +422,10 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                 SimpleRegister sr;
                 sr = new SimpleRegister(value);
 
-                Log.d("cele", "reg created");
+                Log.d("cele", "registry created at %MW" + register + " Value to write: " + value);
 
                 WriteSingleRegisterRequest mulitpleRequest = new WriteSingleRegisterRequest(register, sr);
 
-                Log.d("cele", "request set" + register + " with " + value);
                 if (!(conn != null && conn.isConnected())) {
 
                     handler.post(new Runnable() {
@@ -441,7 +442,6 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                 isWriting = true;
                 trans.setRequest(mulitpleRequest);
                 try {
-                    Log.d("cele", "Writing " + sr + " to " + register);
                     trans.execute();
                     trans.getResponse();
                     Log.d("cele", "executed");
@@ -481,6 +481,7 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                 speedReference.setProgress(tempSpeedRef);
                 isFirstRefresh = false;
             }
+            //Log.d("cele", "Speed reference: " +  regResponse.getRegisterValue(speedRefInAdr));
 
             currentActualCurrent.setText(String.format("%.2f A",
                     twoIntsToACSTransparent(
@@ -496,6 +497,9 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                     regResponse.getRegisterValue(speedEstInAdr + dataInOffset),
                     regResponse.getRegisterValue(speedEstInAdr + 1 + dataInOffset), 100);
 
+            //Log.d("cele", "Speed register #1: " +  regResponse.getRegisterValue(speedEstInAdr + dataInOffset));
+            //Log.d("cele", "Speed register #2: " +  regResponse.getRegisterValue(speedEstInAdr + dataInOffset + 1));
+
             currentActualSpeed.setText(String.format("%.2f 1/min",
                     currentSpeed));
 
@@ -506,13 +510,13 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
                             100)));
 
             int statusWord = regResponse.getRegisterValue(statusWordAdr);
-            // Log.d("cele", " Status word je " + Integer.toBinaryString(statusWord));
+            //Log.d("cele", " Status word je " + Integer.toBinaryString(statusWord));
 
             isReadyToSwitchOn = getBitState(0, statusWord);
-            // Log.d("cele", " isReadyToSwitch on " + isReadyToSwitchOn);
+            //Log.d("cele", " isReadyToSwitch on " + isReadyToSwitchOn);
 
             isReadyToRun = getBitState(1, statusWord);
-            // Log.d("cele", " isReadyToRun " + isReadyToRun);
+             //Log.d("cele", " isReadyToRun " + isReadyToRun);
 
             isReadyRef = getBitState(2, statusWord);
             // Log.d("cele", " isReadyRef " + isReadyRef);
@@ -521,28 +525,28 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
             // Log.d("cele", " isFaulted " + isFaulted);
 
             isOffTwoInactive = getBitState(4, statusWord);
-            // Log.d("cele", " isOff 2 inactive " + isOffTwoInactive);
+            //Log.d("cele", " isOff 2 inactive " + isOffTwoInactive);
 
             isOffThreeInactive = getBitState(5, statusWord);
-            // Log.d("cele", " iisOff 3 inactive " + isOffThreeInactive);
+            //Log.d("cele", " iisOff 3 inactive " + isOffThreeInactive);
 
             isSwitchOnInhibited = getBitState(6, statusWord);
-            // Log.d("cele", " isSwitchOn Inhibited " + isSwitchOnInhibited);
+            //Log.d("cele", " isSwitchOn Inhibited " + isSwitchOnInhibited);
 
             isWarningActive = getBitState(7, statusWord);
-            // Log.d("cele", " isWarning active " + isWarningActive);
+             //Log.d("cele", " isWarning active " + isWarningActive);
 
             isAtSetpoint = getBitState(8, statusWord);
-            // Log.d("cele", " isAt setpoint " + isAtSetpoint);
+           // Log.d("cele", " isAt setpoint " + isAtSetpoint);
 
             isRemoteActive = getBitState(9, statusWord);
             // Log.d("cele", " isRemote active" + isRemoteActive);
 
             isAboveLimit = getBitState(10, statusWord);
-            // Log.d("cele", " isAbove limit " + isAboveLimit);
+            //Log.d("cele", " isAbove limit " + isAboveLimit);
 
             isExtRunEnabled = getBitState(12, statusWord);
-            // Log.d("cele", " Remote run " + isExtRunEnabled);
+            //Log.d("cele", " Remote run " + isExtRunEnabled);
 
 
             if (isFaulted) {
