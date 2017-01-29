@@ -33,7 +33,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.diplomskirad.celestin.diplomskiv2.Utils.acsTransparentToInt;
-import static com.diplomskirad.celestin.diplomskiv2.Utils.getBitState;
 import static com.diplomskirad.celestin.diplomskiv2.Utils.oneIntToTransparent;
 
 public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
@@ -459,11 +458,11 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
 
             currentSpeedReference.setText(speedReference.getProgress()/200 + "%");
 
-            currentActualCurrent.setText(String.format("%.2f A",acs880Drive.getInstantaniousCurrent()));
+            currentActualCurrent.setText(String.format("%.2f A",acs880Drive.getInstantaneousCurrent()));
 
-            currentActualSpeed.setText(String.format("%.2f 1/min",acs880Drive.getInstataniousSpeed()));
+            currentActualSpeed.setText(String.format("%.2f 1/min",acs880Drive.getInstantaneousSpeed()));
 
-            currentActualPower.setText(String.format("%.2f kW",acs880Drive.getInstantaniousPower()));
+            currentActualPower.setText(String.format("%.2f kW",acs880Drive.getInstantaneousPower()));
 
 
             isReadyToSwitchOn = acs880Drive.isReadyToPowerOn();

@@ -2,6 +2,7 @@ package com.diplomskirad.celestin.diplomskiv2;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.ghgande.j2mod.modbus.msg.ReadMultipleRegistersResponse;
 
@@ -29,212 +30,216 @@ public class ABBVariableSpeedDrive {
     private boolean isSwitchOnInhibited;
     private boolean isSetpointLimitReachedActive;
     private boolean isExternalControlSelected;
-    private boolean isExternalStartRecieved;
+    private boolean isExternalStartReceived;
 
     private float speedReferenceSetpoint;
     private float speedReferenceFeedback;
-    private float instataniousSpeed;
-    private float instantaniousCurrent;
-    private float instantaniousPower;
+    private float instantaneousSpeed;
+    private float instantaneousCurrent;
+    private float instantaneousPower;
 
     Context applicationContext = AcsActivity.getContextOfApplication();
 
+    int dataInOffset = 52;
 
     //Memory offset as defined in ABB manual for FENA 11
     //communication module
 
-    final int controlWordAdr = 0;
-    final int statusWordAdr = 50;
-    final int speedRefInAdr = 51;
-    final int speedRefOutAdr = 1;
-    final int dataInOffset = 52;
-    int powerInAdr;
-    int currentInAdr;
-    int speedEstInAdr;
-    int readSpeedRef = 0;
-    float currentSpeed;
+    private final int controlWordAdr = 0;
+    private final int statusWordAdr = 50;
+    private final int speedRefInAdr = 51;
+    private final int speedRefOutAdr = 1;
+    private int powerInAdr;
+    private int currentInAdr;
+    private int speedEstInAdr;
+    private int readSpeedRef = 0;
 
 
 
 
     //Initialize all values from shared prefs
 
-    public ABBVariableSpeedDrive() {
+    ABBVariableSpeedDrive() {
         SharedPreferences sharedPreferences = applicationContext.getSharedPreferences(Constants.MY_PREFS, 0);//PreferenceManager.getDefaultSharedPreferences(applicationContext);
 
-        currentInAdr = sharedPreferences.getInt(Postavke.ACS_CURRENT_READ, Constants.DEFUALT_ACS_CURRENT_READ_ADR) + dataInOffset;
-        powerInAdr = sharedPreferences.getInt(Postavke.ACS_POWER_READ, Constants.DEFUALT_ACS_POWER_READ_ADR) + dataInOffset;
-        speedEstInAdr = sharedPreferences.getInt(Postavke.ACS_SPEED_EST_READ, Constants.DEFUALT_ACS_SPEED_EST_READ_ADR);
+        Log.d("cele", "VSD object instantiated");
+
+        currentInAdr = sharedPreferences.getInt(Postavke.ACS_CURRENT_READ,
+                Constants.DEFUALT_ACS_CURRENT_READ_ADR) + dataInOffset;
+        powerInAdr = sharedPreferences.getInt(Postavke.ACS_POWER_READ,
+                Constants.DEFUALT_ACS_POWER_READ_ADR) + dataInOffset;
+        speedEstInAdr = sharedPreferences.getInt(Postavke.ACS_SPEED_EST_READ,
+                Constants.DEFUALT_ACS_SPEED_EST_READ_ADR) + dataInOffset;
 
     }
 
 
 
-    public boolean isReadyToPowerOn() {
+    boolean isReadyToPowerOn() {
         return isReadyToPowerOn;
     }
 
-    public void setReadyToPowerOn(boolean readyToPowerOn) {
+    private void setReadyToPowerOn(boolean readyToPowerOn) {
         isReadyToPowerOn = readyToPowerOn;
     }
 
-    public boolean isReadyToRun() {
+    boolean isReadyToRun() {
         return isReadyToRun;
     }
 
-    public void setReadyToRun(boolean readyToRun) {
+    private void setReadyToRun(boolean readyToRun) {
         isReadyToRun = readyToRun;
     }
 
-    public boolean isRunning() {
+    boolean isRunning() {
         return isRunning;
     }
 
-    public void setRunning(boolean running) {
+    private void setRunning(boolean running) {
         isRunning = running;
     }
 
-    public boolean isInRemoteControl() {
+    boolean isInRemoteControl() {
         return isInRemoteControl;
     }
 
-    public void setInRemoteControl(boolean inRemoteControl) {
+    private void setInRemoteControl(boolean inRemoteControl) {
         isInRemoteControl = inRemoteControl;
     }
 
-    public boolean isFaultActive() {
+    boolean isFaultActive() {
         return isFaultActive;
     }
 
-    public void setFaultActive(boolean faultActive) {
+    private void setFaultActive(boolean faultActive) {
         isFaultActive = faultActive;
     }
 
-    public boolean isOff2Active() {
+    boolean isOff2Active() {
         return isOff2Active;
     }
 
-    public void setOff2Active(boolean off2Active) {
+    private void setOff2Active(boolean off2Active) {
         isOff2Active = off2Active;
     }
 
-    public boolean isOff3Active() {
+    boolean isOff3Active() {
         return isOff3Active;
     }
 
-    public void setOff3Active(boolean off3Active) {
+    private void setOff3Active(boolean off3Active) {
         isOff3Active = off3Active;
     }
 
-    public boolean isWarningActive() {
+    boolean isWarningActive() {
         return isWarningActive;
     }
 
-    public void setWarningActive(boolean warningActive) {
+    private void setWarningActive(boolean warningActive) {
         isWarningActive = warningActive;
     }
 
-    public boolean isSetPointDeviationActive() {
+    boolean isSetPointDeviationActive() {
         return isSetPointDeviationActive;
     }
 
-    public void setSetPointDeviationActive(boolean setPointDeviationActive) {
+    private void setSetPointDeviationActive(boolean setPointDeviationActive) {
         isSetPointDeviationActive = setPointDeviationActive;
     }
 
-    public boolean isSwitchOnInhibited() {
+    boolean isSwitchOnInhibited() {
         return isSwitchOnInhibited;
     }
 
-    public void setSwitchOnInhibited(boolean switchOnInhibited) {
+    private void setSwitchOnInhibited(boolean switchOnInhibited) {
         isSwitchOnInhibited = switchOnInhibited;
     }
 
-    public boolean isSetpointLimitReachedActive() {
+    boolean isSetpointLimitReachedActive() {
         return isSetpointLimitReachedActive;
     }
 
-    public void setSetpointLimitReachedActive(boolean setpointLimitReachedActive) {
+    private void setSetpointLimitReachedActive(boolean setpointLimitReachedActive) {
         isSetpointLimitReachedActive = setpointLimitReachedActive;
     }
 
-    public boolean isExternalControlSelected() {
+    boolean isExternalControlSelected() {
         return isExternalControlSelected;
     }
 
-    public void setExternalControlSelected(boolean externalControlSelected) {
+    private void setExternalControlSelected(boolean externalControlSelected) {
         isExternalControlSelected = externalControlSelected;
     }
 
-    public boolean isExternalStartRecieved() {
-        return isExternalStartRecieved;
+    boolean isExternalStartReceived() {
+        return isExternalStartReceived;
     }
 
-    public void setExternalStartRecieved(boolean externalStartRecieved) {
-        isExternalStartRecieved = externalStartRecieved;
+    private void setExternalStartReceived(boolean externalStartReceived) {
+        isExternalStartReceived = externalStartReceived;
     }
 
-    public float getSpeedReferenceSetpoint() {
+    float getSpeedReferenceSetpoint() {
         return speedReferenceSetpoint;
     }
 
-    public void setSpeedReferenceSetpoint(float speedReferenceSetpoint) {
+    void setSpeedReferenceSetpoint(float speedReferenceSetpoint) {
         this.speedReferenceSetpoint = speedReferenceSetpoint;
     }
 
-    public float getSpeedReferenceFeedback() {
+    float getSpeedReferenceFeedback() {
         return speedReferenceFeedback;
     }
 
-    public void setSpeedReferenceFeedback(float speedReferenceFeedback) {
+    private void setSpeedReferenceFeedback(float speedReferenceFeedback) {
         this.speedReferenceFeedback = speedReferenceFeedback;
     }
 
-    public float getInstataniousSpeed() {
-        return instataniousSpeed;
+    float getInstantaneousSpeed() {
+        return instantaneousSpeed;
     }
 
-    public void setInstataniousSpeed(float instataniousSpeed) {
-        this.instataniousSpeed = instataniousSpeed;
+    private void setInstantaneousSpeed(float instantaneousSpeed) {
+        this.instantaneousSpeed = instantaneousSpeed;
     }
 
-    public float getInstantaniousCurrent() {
-        return instantaniousCurrent;
+    float getInstantaneousCurrent() {
+        return instantaneousCurrent;
     }
 
-    public void setInstantaniousCurrent(float instantaniousCurrent) {
-        this.instantaniousCurrent = instantaniousCurrent;
+    private void setInstantaneousCurrent(float instantaneousCurrent) {
+        this.instantaneousCurrent = instantaneousCurrent;
     }
 
-    public float getInstantaniousPower() {
-        return instantaniousPower;
+    float getInstantaneousPower() {
+        return instantaneousPower;
     }
 
-    public void setInstantaniousPower(float instantaniousPower) {
-        this.instantaniousPower = instantaniousPower;
+    private void setInstantaneousPower(float instantaneousPower) {
+        this.instantaneousPower = instantaneousPower;
     }
 
 
     //Method to update all the values in the VSD object by using a register array from the modbus request
 
-    public void updateDriveState(ReadMultipleRegistersResponse modbusResponse){
+    void updateDriveState(ReadMultipleRegistersResponse modbusResponse){
 
 
         int statusWord = modbusResponse.getRegisterValue(statusWordAdr);
 
-        this.setInstantaniousCurrent( twoIntsToACSTransparent(
+        this.setInstantaneousCurrent( twoIntsToACSTransparent(
                 modbusResponse.getRegisterValue(currentInAdr),
                 modbusResponse.getRegisterValue(currentInAdr + 1),
                 Constants.VSD_FEEDBACK_SCALING_FACTOR));
 
-        this.setInstantaniousPower(twoIntsToACSTransparent(
+        this.setInstantaneousPower(twoIntsToACSTransparent(
                 modbusResponse.getRegisterValue(powerInAdr),
                 modbusResponse.getRegisterValue(powerInAdr + 1),
                 Constants.VSD_FEEDBACK_SCALING_FACTOR));
 
-        this.setInstataniousSpeed(twoIntsToACSTransparent(
-                modbusResponse.getRegisterValue(speedEstInAdr + dataInOffset),
-                modbusResponse.getRegisterValue(speedEstInAdr + 1 + dataInOffset),
+        this.setInstantaneousSpeed(twoIntsToACSTransparent(
+                modbusResponse.getRegisterValue(speedEstInAdr),
+                modbusResponse.getRegisterValue(speedEstInAdr + 1),
                 Constants.VSD_FEEDBACK_SCALING_FACTOR));
 
 
