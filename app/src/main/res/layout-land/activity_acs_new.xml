@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/txt_alarms_wrn"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="8dp"
+        android:text="Nema Alarma"
+        android:textColor="@android:color/holo_orange_dark"
+        app:layout_constraintLeft_toLeftOf="@+id/txt_alarm_header"
+        app:layout_constraintTop_toBottomOf="@+id/txt_alarms_flt" />
+
+    <ImageButton
+        android:id="@+id/image_fault"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/background_light"
+        android:scaleType="fitXY"
+        android:src="@mipmap/error"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_conversion_absoluteHeight="80dp"
+        tools:layout_conversion_absoluteWidth="127dp"
+        tools:layout_conversion_absoluteX="20dp"
+        tools:layout_conversion_absoluteY="507dp"
+        app:layout_constraintLeft_toRightOf="@+id/img_warning"
+        android:layout_marginLeft="8dp" />
+
+    <ImageButton
+        android:id="@+id/img_warning"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginLeft="24dp"
+        android:layout_marginTop="8dp"
+        android:background="@android:color/background_light"
+        android:scaleType="fitXY"
+        android:src="@mipmap/warning"
+        app:layout_constraintLeft_toRightOf="@+id/txt_alarm_header"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_conversion_absoluteHeight="80dp"
+        tools:layout_conversion_absoluteWidth="127dp"
+        tools:layout_conversion_absoluteX="20dp"
+        tools:layout_conversion_absoluteY="507dp" />
+
+    <SeekBar
+        android:id="@+id/seek_speed_reference"
+        android:layout_width="0dp"
+        android:layout_height="30dp"
+
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:max="20000"
+        android:progress="@android:integer/config_shortAnimTime"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/btn_reset"
+        tools:layout_constraintBottom_creator="1"
+        tools:layout_constraintLeft_creator="1"
+        tools:layout_constraintRight_creator="1"
+        tools:layout_constraintTop_creator="1" />
+
+    <Button
+        android:id="@+id/btn_start_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/button_green_sel"
+        android:text="Start/Stop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <Button
+        android:id="@+id/btn_reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/button_red_selector"
+        android:text="RESET"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btn_start_stop"
+        app:layout_constraintRight_toLeftOf="@+id/btn_start_stop" />
+
+    <TextView
+        android:id="@+id/txt_alarm_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Alarmi"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginLeft="32dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/txt_alarms_flt"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="16dp"
+        android:text="Nema Alarma"
+        android:textColor="@android:color/holo_red_dark"
+        app:layout_constraintLeft_toLeftOf="@+id/txt_alarm_header"
+        app:layout_constraintTop_toBottomOf="@+id/txt_alarm_header" />
+
+    <TextView
+        android:id="@+id/txt_speed_ref_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="7dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:text="Trenutna referenca brzine:"
+        app:layout_constraintBottom_toTopOf="@+id/seek_speed_reference"
+        app:layout_constraintLeft_toLeftOf="@+id/seek_speed_reference"
+        app:layout_constraintRight_toRightOf="@+id/seek_speed_reference" />
+
+    <TextView
+        android:id="@+id/txt_speed_ref_sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:text="0%"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@+id/txt_speed_ref_text"
+        app:layout_constraintLeft_toRightOf="@+id/txt_speed_ref_text" />
+
+    <TextView
+        android:id="@+id/txt_comm_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="32dp"
+        android:layout_marginTop="8dp"
+        android:text="Status Komunikacije"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txt_comm_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="16dp"
+        android:text="Spojeno"
+        android:textColor="@android:color/holo_orange_dark"
+        app:layout_constraintLeft_toLeftOf="@+id/txt_comm_status"
+        app:layout_constraintTop_toBottomOf="@+id/txt_comm_status" />
+
+    <TextView
+        android:id="@+id/txt_comm_latency_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vrijeme odziva:"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/txt_comm_state"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/txt_comm_state" />
+
+    <TextView
+        android:id="@+id/txt_comm_latency"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:text="15ms"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@+id/txt_comm_latency_text"
+        app:layout_constraintLeft_toRightOf="@+id/txt_comm_latency_text" />
+
+    <TextView
+        android:id="@+id/txt_trans_id_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="8dp"
+        android:text="ID MODBUS transakcije:"
+        app:layout_constraintLeft_toLeftOf="@+id/txt_comm_latency_text"
+        app:layout_constraintTop_toBottomOf="@+id/txt_comm_latency_text" />
+
+    <TextView
+        android:id="@+id/txt_trans_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:text="5"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@+id/txt_trans_id_text"
+        app:layout_constraintLeft_toRightOf="@+id/txt_trans_id_text" />
+
+    <TextView
+        android:id="@+id/txt_state_vsd_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Status Pretvaraca"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/txt_alarm_header"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintVertical_bias="0.42000002" />
+
+    <TextView
+        android:id="@+id/txt_act_speed_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trenutna brzina:"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@+id/txt_state_vsd_text"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/txt_state_vsd_text" />
+
+    <TextView
+        android:id="@+id/txt_act_current_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trenutna struja:"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/txt_act_speed_text"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/txt_act_speed_text" />
+
+    <TextView
+        android:id="@+id/txt_act_power_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="8dp"
+        android:text="Trenutna snaga:"
+        app:layout_constraintLeft_toLeftOf="@+id/txt_act_current_text"
+        app:layout_constraintTop_toBottomOf="@+id/txt_act_current_text" />
+
+    <TextView
+        android:id="@+id/txt_act_speed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:text="100 1/min"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@+id/txt_act_speed_text"
+        app:layout_constraintLeft_toRightOf="@+id/txt_act_speed_text" />
+
+    <TextView
+        android:id="@+id/txt_act_current"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="3.5 A"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@+id/txt_act_current_text"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/txt_act_speed" />
+
+    <TextView
+        android:id="@+id/txt_act_power"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="2.8 kW"
+        android:textStyle="bold"
+        app:layout_constraintBaseline_toBaselineOf="@+id/txt_act_power_text"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/txt_act_speed" />
+
+    <TextView
+        android:id="@+id/txt_ip_address_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="IP adresa:"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/txt_trans_id_text"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/txt_trans_id_text" />
+
+    <TextView
+        android:id="@+id/txt_port_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Port:"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/txt_ip_address_text"
+        android:layout_marginLeft="0dp"
+        app:layout_constraintLeft_toLeftOf="@+id/txt_ip_address_text" />
+
+    <TextView
+        android:id="@+id/txt_ip_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="192.168.0.1"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/txt_ip_address_text"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/txt_ip_address_text" />
+
+    <TextView
+        android:id="@+id/txt_port"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="502"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toRightOf="@+id/txt_port_text"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/txt_port_text" />
+
+    <ImageButton
+        android:id="@+id/btn_edit_ip_address"
+        style="@android:style/Widget.Material.Light.ImageButton"
+        android:layout_width="30dp"
+        android:layout_height="25dp"
+        android:layout_marginBottom="0dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:scaleType="fitXY"
+        app:layout_constraintBottom_toBottomOf="@+id/txt_ip_address_text"
+        app:layout_constraintRight_toLeftOf="@+id/txt_ip_address_text"
+        app:layout_constraintTop_toTopOf="@+id/txt_ip_address_text"
+        app:srcCompat="@android:drawable/ic_menu_edit" />
+
+    <Button
+        android:id="@+id/btn_acs_reverziranje"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginRight="8dp"
+        android:text="temp"
+        app:layout_constraintBottom_toTopOf="@+id/btn_start_stop"
+        app:layout_constraintRight_toRightOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

@@ -3,6 +3,7 @@ package com.diplomskirad.celestin.diplomskiv2;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
@@ -28,10 +29,12 @@ import com.ghgande.j2mod.modbus.net.TCPMasterConnection;
 import com.ghgande.j2mod.modbus.procimg.SimpleRegister;
 
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static android.R.color.holo_green_dark;
 import static com.diplomskirad.celestin.diplomskiv2.Utils.acsTransparentToInt;
 import static com.diplomskirad.celestin.diplomskiv2.Utils.oneIntToTransparent;
 
@@ -47,8 +50,11 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
     TextView currentActualSpeed;
     TextView currentActualCurrent;
     TextView currentActualPower;
-    TextView currentFaultCode;
-    TextView currentWarningCode;
+    TextView connectionState;
+    TextView connLatency;
+    TextView connIP;
+    TextView connPort;
+    TextView modbusTransaction;
     SeekBar speedReference;
     ImageButton btnWarning;
     ImageButton btnFault;
@@ -76,6 +82,9 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
 
     ABBVariableSpeedDrive acs880Drive;
 
+    String AcsIP;
+    int AcsPort;
+
     Timer tm;
     TimerTask readRegs;
     Handler handler = new Handler();
@@ -91,6 +100,8 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
     final int speedRefInAdr = 51;
     final int speedRefOutAdr = 1;
     int readSpeedRef = 0;
+    float connLatencyMS = 0;
+    int modbusTrans = 0;
 
     //default control word value for stopping the motor(required for first startup)
     int starStopWriteValue = 1150;
@@ -99,38 +110,41 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_acs);
+        setContentView(R.layout.activity_acs_new);
 
-
+        this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         contextOfApplication = getApplicationContext();
 
         acs880Drive = new ABBVariableSpeedDrive();
 //getting the sharedPrerefences for IP and PORT address retrieval
         sharedPreferences = getApplicationContext().getSharedPreferences(Constants.MY_PREFS, 0); // 0 - for private mode
+        AcsIP = sharedPreferences.getString(Postavke.ACS_IP, Constants.DEFUALT_ACS_IP);
+        AcsPort = sharedPreferences.getInt(Postavke.ACS_PORT, Constants.DEFUALT_ACS_PORT);
+        connectionState = (TextView) findViewById(R.id.txt_comm_state);
+        currentSpeedReference = (TextView) findViewById(R.id.txt_speed_ref_sp);
+        currentActualCurrent = (TextView) findViewById(R.id.txt_act_current);
+        currentActualSpeed = (TextView) findViewById(R.id.txt_act_speed);
+        currentActualPower = (TextView) findViewById(R.id.txt_act_power);
+        connIP = (TextView) findViewById(R.id.txt_ip_address);
+        connPort = (TextView) findViewById(R.id.txt_port);
+        connLatency = (TextView) findViewById(R.id.txt_comm_latency);
+        modbusTransaction = (TextView) findViewById(R.id.txt_trans_id);
 
-        currentSpeedReference = (TextView) findViewById(R.id.txt_acs_reference_value);
-        currentActualCurrent = (TextView) findViewById(R.id.txt_acs_current_current_value);
-        currentActualSpeed = (TextView) findViewById(R.id.txt_acs_speed_current_value);
-        currentActualPower = (TextView) findViewById(R.id.txt_acs_current_power_value);
-        currentFaultCode = (TextView) findViewById(R.id.txt_acs_current_fault);
-        currentWarningCode = (TextView) findViewById(R.id.txt_acs_current_warning);
+        btnFault = (ImageButton) findViewById(R.id.image_fault);
+        btnWarning = (ImageButton) findViewById(R.id.img_warning);
 
-        btnFault = (ImageButton) findViewById(R.id.btn_acs_fault);
-        btnWarning = (ImageButton) findViewById(R.id.btn_acs_warning);
+
 
         btnFault.setVisibility(View.INVISIBLE);
         btnWarning.setVisibility(View.INVISIBLE);
 
-        currentFaultCode.setText(" ");
-        currentWarningCode.setText(" ");
-
-        startStop = (Button) findViewById(R.id.btn_acs_start_stop);
+        startStop = (Button) findViewById(R.id.btn_start_stop);
         // startStop.setBackgroundColor(Color.parseColor("#ff2280d7"));
         startStop.setBackgroundResource(R.drawable.button_selector);
         reverse = (Button) findViewById(R.id.btn_acs_reverziranje);
 
 
-        speedReference = (SeekBar) findViewById(R.id.seek_acs_speed_reference);
+        speedReference = (SeekBar) findViewById(R.id.seek_speed_reference);
 
         speedReference.setOnSeekBarChangeListener(this);
         speedReference.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -201,6 +215,7 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
 
                         writeToACS(starStopWriteValue, controlWordAdr);
 
+
                     }
                 });
 
@@ -242,6 +257,37 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
             promjenaSmjera.show();
             }
         });
+
+
+
+        /*
+        Updates the UI on a required rate (slower then the VSD data) based on local data
+        Runs the updateFastGui function that hadnles all TextView and button updates
+
+         */
+        Thread t = new Thread() {
+
+            @Override
+            public void run() {
+                try {
+                    while (!isInterrupted()) {
+                        Thread.sleep(1000);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateFastGUI();
+                            }
+                        });
+                    }
+                } catch (InterruptedException e) {
+                }
+            }
+        };
+
+        t.start();
+
+
+
     }
 
     @Override
@@ -272,11 +318,10 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
 
     void connectToDevice() {
 
-        final String AcsIP = sharedPreferences.getString(Postavke.ACS_IP, Constants.DEFUALT_ACS_IP);
-        final int AcsPort = sharedPreferences.getInt(Postavke.ACS_PORT, Constants.DEFUALT_ACS_PORT);
-
         try {
 
+            connectionState.setText("Spajanje...");
+            connectionState.setTextColor(this.getResources().getColor(android.R.color.holo_green_dark));
             InetAddress address = InetAddress.getByName(AcsIP);
             conn = new TCPMasterConnection(address);
             conn.setPort(AcsPort);
@@ -302,6 +347,8 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
 
                 tm.scheduleAtFixedRate(readRegs, (long) 500, (long) 200);
                 isConnectedToSlave = true;
+                connectionState.setText("Spojeno");
+                connectionState.setTextColor(this.getResources().getColor(android.R.color.holo_green_dark));
             }
 
         } catch (UnknownHostException e) {
@@ -343,26 +390,33 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
         }
 
         regRequest = new ReadMultipleRegistersRequest(0, 75);
-
+        float sysTime = System.currentTimeMillis();
         trans = new ModbusTCPTransaction(conn);
         trans.setRequest(regRequest);
+        modbusTrans = trans.getTransactionID();
 
         try {
 
             trans.execute();
 
+
+            connLatencyMS = System.currentTimeMillis() - sysTime;
+
+
         } catch (ModbusIOException e) {
             Log.d("cele", "IO error");
+            closeConnection();
 
             e.printStackTrace();
         } catch (ModbusSlaveException e) {
-
+            closeConnection();
             Log.d("cele", "Slave returned exception");
             e.printStackTrace();
         } catch (ModbusException e) {
             Log.d("cele", "Failed to execute request");
-
+            closeConnection();
             e.printStackTrace();
+
         } catch (NullPointerException e) {
 
             e.printStackTrace();
@@ -391,6 +445,7 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
 
     void writeToACS(final int value, final int register) {
 
+        Log.d("cele", "Write Fun Called");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -437,7 +492,6 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
     void refreshGUI() {
 
         if (regResponse != null) {
-
 
             acs880Drive.updateDriveState(regResponse);
             //  Log.d("cele", "Values refreshed");
@@ -492,19 +546,15 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
 
             if (isFaulted) {
                 btnFault.setVisibility(View.VISIBLE);
-                currentFaultCode.setText("FAULT");
 
             } else {
                 btnFault.setVisibility(View.INVISIBLE);
-                currentFaultCode.setText(" ");
             }
 
             if (isWarningActive) {
                 btnWarning.setVisibility(View.VISIBLE);
-                currentWarningCode.setText("WARNING");
             } else {
                 btnWarning.setVisibility(View.INVISIBLE);
-                currentWarningCode.setText(" ");
             }
 
             if (isFaulted) {
@@ -580,6 +630,25 @@ public class AcsActivity extends AppCompatActivity implements SeekBar.OnSeekBarC
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    private void updateFastGUI() {
+
+        connLatency.setText((String.format("%.1f ms", connLatencyMS)));
+        modbusTransaction.setText((String.format("%1d", modbusTrans)));
+
+        connIP.setText(AcsIP);
+        connPort.setText(Integer.toString(AcsPort));
+
+        if (conn != null && conn.isConnected()) {
+            connectionState.setText("Spojeno");
+            connectionState.setTextColor(this.getResources().getColor(android.R.color.holo_green_dark));
+        } else {
+            connectionState.setText("Nije spojeno");
+            connectionState.setTextColor(this.getResources().getColor(android.R.color.holo_red_dark));
+        }
+
 
     }
 
